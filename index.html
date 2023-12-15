@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Web App</title>
+    <!-- Add Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Select Outlet</h3>
+            <select class="form-control" id="outletDropdown">
+                <option value="outlet1">මිඩ්ලන්ඩ් කැෆේ </option>
+                <option value="outlet2">මිඩ්ලන්ඩ් මාර්කෙට්  </option>
+                <option value="outlet2">මිඩ්ලන්ඩ් ධේලී  </option>
+                <!-- Add more outlets as needed -->
+            </select>
+
+            <h3 class="mt-4">Select Items</h3>
+            <div class="btn-group">
+                <!-- Tile buttons for items -->
+                           <!-- Tile buttons for items -->
+                <button class="btn btn-primary itemBtn">පාන් </button>
+                <button class="btn btn-primary itemBtn">T බනිස් </button>
+                <button class="btn btn-primary itemBtn">කුඩු බනිස් </button>
+                <button class="btn btn-primary itemBtn">ක්‍රීම් බනිස්   </button>
+                <button class="btn btn-primary itemBtn">වියනා </button>
+                <button class="btn btn-primary itemBtn">මලූ පාන් </button>
+                <button class="btn btn-primary itemBtn">සිනි සම්බල් </button>
+                <button class="btn btn-primary itemBtn">ජෑම් බනිස් </button>
+                <!-- Add more item buttons as needed -->
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Summary</h3>
+            <p id="outletName">Outlet: </p>
+            <ul id="summaryList" class="list-group">
+                <!-- Summary items will be added here dynamically -->
+            </ul>
+
+            <button class="btn btn-success mt-3" data-toggle="modal" data-target="#quantityModal">Print Summary</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quantity Modal -->
+<div class="modal fade" id="quantityModal" tabindex="-1" role="dialog" aria-labelledby="quantityModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quantityModalLabel">Enter Quantity</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="quantityInput">Quantity:</label>
+                <input type="number" class="form-control" id="quantityInput">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="addToSummaryBtn">Add to Summary</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bootstrap and jQuery scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Add Print.js script -->
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let selectedItems = [];
+
+        // Handle item button click
+        $('.itemBtn').click(function () {
+            let itemName = $(this).text();
+            $('#quantityModal').data('item-name', itemName).modal('show');
+        });
+
+        // Handle add to summary button click
+        $('#addToSummaryBtn').click(function () {
+            let itemName = $('#quantityModal').data('item-name');
+            let quantity = $('#quantityInput').val();
+            let outletName = $('#outletDropdown option:selected').text();
+
+            if (quantity > 0) {
+                addToSummary(itemName, quantity, outletName);
+                $('#quantityModal').modal('hide');
+            } else {
+                alert('Please enter a valid quantity.');
+            }
+        });
+
+        // Handle print summary button click
+        $('.btn-success').click(function () {
+            printSummary();
+        });
+
+        // Function to add item to summary
+        function addToSummary(itemName, quantity, outletName) {
+            let summaryList = $('#summaryList');
+            let listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+            listItem.text(`${outletName} - ${itemName} - ${quantity} කැලී `);
+            listItem.append('<button class="btn btn-danger btn-sm ml-2 removeBtn">Remove</button>');
+            summaryList.append(listItem);
+
+            // Store selected items for removal
+            selectedItems.push(itemName);
+
+            // Handle remove button click
+            listItem.find('.removeBtn').click(function () {
+                listItem.remove();
+                // Remove item from selectedItems array
+                selectedItems = selectedItems.filter(item => item !== itemName);
+            });
+        }
+
+        // Function to print the summary
+        function printSummary() {
+            let printContents = $('#summaryList').html();
+            let printWindow = window.open('', '_blank');
+            printWindow.document.open();
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Summary</title>
+                        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                    </head>
+                    <body>
+                        <h3>Summary</h3>
+                        <p>Outlet: ${$('#outletDropdown option:selected').text()}</p>
+                        <ul class="list-group">${printContents}</ul>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+    });
+</script>
+
+</body>
+</html>
