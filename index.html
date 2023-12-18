@@ -135,47 +135,57 @@
             }
 
             // Function to print the summary
-            function printSummary() {
-                // Create a clean version of the summary without the remove buttons
-                let cleanSummaryList = $('#summaryList').clone();
-                cleanSummaryList.find('.removeBtn').remove();
+     function printSummary() {
+    // Create a clean version of the summary without the remove buttons
+    let cleanSummaryList = $('#summaryList').clone();
+    cleanSummaryList.find('.removeBtn').remove();
 
-                let printContents = cleanSummaryList.html();
-                let printWindow = window.open('', '_blank');
-                printWindow.document.open();
-                printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Summary</title>
-                        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-                        <style>
-                            body {
-                                font-size: 12px;
-                                line-height: 1.4;
-                                margin: 10px;
-                            }
-                            h3 {
-                                margin-top: 10px;
-                            }
-                            .list-group {
-                                margin-bottom: 10px;
-                            }
-                            hr {
-                                margin-top: 10px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h3>Summary</h3>
-                        <p>Outlet: ${$('#outletDropdown option:selected').text()}</p>
-                        <hr>
-                        <ul class="list-group">${printContents}</ul>
-                    </body>
-                </html>
-            `);
-                printWindow.document.close();
-                printWindow.print();
-            }
+    let outletName = $('#outletDropdown option:selected').text();
+    let userName = $('#userDropdown option:selected').text();
+    let enteredUsername = $('#username').val();
+
+    let printContents = cleanSummaryList.html();
+    let printWindow = window.open('', '_blank');
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Summary</title>
+                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                <style>
+                    body {
+                        font-size: 16px; /* Adjust the font size as needed */
+                        line-height: 1.6;
+                        margin: 20px;
+                    }
+                    h3 {
+                        margin-top: 20px;
+                    }
+                    p {
+                        margin-bottom: 10px;
+                    }
+                    .list-group {
+                        margin-bottom: 20px;
+                    }
+                    hr {
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <h3>Summary</h3>
+                <p>Outlet: ${outletName}</p>
+                <p>User: ${userName}</p>
+                <p>Username: ${enteredUsername}</p>
+                <hr>
+                <ul class="list-group">${printContents}</ul>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
 
         });
     </script>
