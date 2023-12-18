@@ -119,7 +119,7 @@
             function addToSummary(itemName, quantity, outletName) {
                 let summaryList = $('#summaryList');
                 let listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
-                listItem.text(`$ ${itemName} - ${quantity} කැලී `);
+                listItem.text(` ${itemName} - ${quantity} කැලී `);
                 listItem.append('<button class="btn btn-danger btn-sm ml-2 removeBtn">Remove</button>');
                 summaryList.append(listItem);
 
@@ -173,8 +173,8 @@
                 </style>
             </head>
             <body>
-                <h3>Summary</h3>
-                <p>Outlet: ${outletName}</p>
+                <h3>${outletName}</h3>
+               
                 <p>User: ${userName}</p>
                 <p>Username: ${enteredUsername}</p>
                 <hr>
