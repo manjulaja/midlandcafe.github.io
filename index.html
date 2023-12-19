@@ -9,52 +9,47 @@
 </head>
 <body>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Select Outlet</h3>
-                <select class="form-control" id="outletDropdown">
-                    <option value="outlet1">මිඩ්ලන්ඩ් කැෆේ </option>
-                    <option value="outlet2">මිඩ්ලන්ඩ් මාර්කෙට්  </option>
-                    <option value="outlet2">මිඩ්ලන්ඩ් ධේලී  </option>
-                    <!-- Add more outlets as needed -->
-                </select>
+ <div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Select Outlet</h3>
+            <!-- Increase the size of the Select Outlet dropdown -->
+            <select class="form-control mb-3" id="outletDropdown">
+                <option value="outlet1">මිඩ්ලන්ඩ් කැෆේ </option>
+                <option value="outlet2">මිඩ්ලන්ඩ් මාර්කෙට්  </option>
+                <option value="outlet2">මිඩ්ලන්ඩ් ධේලී  </option>
+                <!-- Add more outlets as needed -->
+            </select>
 
-                <h3 class="mt-4">Select Items</h3>
-                <div class="row">
-                    <div class="col-md-4">
-                        <!-- First column for items -->
-                        <button class="btn btn-primary btn-block itemBtn">පාන්</button>
-                        <button class="btn btn-primary btn-block itemBtn">T බනිස්</button>
-                        <button class="btn btn-primary btn-block itemBtn">ජෑම් බනිස්</button>
-                    </div>
-                    <div class="col-md-4">
-                        <!-- Second column for items -->
-                        <button class="btn btn-primary btn-block itemBtn">කුඩු බනිස්</button>
-                        <button class="btn btn-primary btn-block itemBtn">ක්‍රීම් බනිස්</button>
-                    </div>
-                    <div class="col-md-4">
-                        <!-- Third column for items -->
-                        <button class="btn btn-primary btn-block itemBtn">වියනා</button>
-                        <button class="btn btn-primary btn-block itemBtn">මලූ පාන්</button>
-                        <button class="btn btn-primary btn-block itemBtn">සිනි සම්බල්</button>
-
-                        <!-- Add more item buttons as needed -->
-                    </div>
+            <h3 class="mt-4">Select Items</h3>
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Single column for items, col-12 -->
+                    <button class="btn btn-primary btn-block itemBtn">පාන්</button>
+                    <button class="btn btn-primary btn-block itemBtn">T බනිස්</button>
+                    <button class="btn btn-primary btn-block itemBtn">ජෑම් බනිස්</button>
+                    <button class="btn btn-primary btn-block itemBtn">කුඩු බනිස්</button>
+                    <button class="btn btn-primary btn-block itemBtn">ක්‍රීම් බනිස්</button>
+                    <button class="btn btn-primary btn-block itemBtn">වියනා</button>
+                    <button class="btn btn-primary btn-block itemBtn">මලූ පාන්</button>
+                    <button class="btn btn-primary btn-block itemBtn">සිනි සම්බල්</button>
+                    <!-- Add more item buttons as needed -->
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-6">
-                <h3>Summary</h3>
-                <p id="outletName">Outlet: </p>
-                <ul id="summaryList" class="list-group">
-                    <!-- Summary items will be added here dynamically -->
-                </ul>
+        <div class="col-md-6">
+            <h3>Summary</h3>
+            <p id="outletName">Outlet: </p>
+            <ul id="summaryList" class="list-group">
+                <!-- Summary items will be added here dynamically -->
+            </ul>
 
-                <button class="btn btn-success mt-3" data-toggle="modal" data-target="#quantityModal">Print Summary</button>
-            </div>
+            <button class="btn btn-success mt-3" data-toggle="modal" data-target="#quantityModal">Print Summary</button>
         </div>
     </div>
+</div>
+
 
     <!-- Quantity Modal -->
     <div class="modal fade" id="quantityModal" tabindex="-1" role="dialog" aria-labelledby="quantityModalLabel" aria-hidden="true">
