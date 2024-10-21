@@ -1,189 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Web App</title>
-    <!-- Add Bootstrap CSS link -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Order Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        /* Style to make the receipt fit 48mm with minimal white space */
+        #receipt {
+            width: 48mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px; /* Increase font size */
+            font-weight: bold; /* Make text bold */
+            margin: 0;
+            padding: 0;
+            text-align: center; /* Center align text */
+        }
+
+        .receipt-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 5px;
+            width: 100%;
+            font-weight: bold; /* Ensure each item in the receipt is bold */
+            border-bottom: 1px dotted #000; /* Add a small dotted line between items */
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .separator {
+            border-bottom: 2px solid black;
+            margin: 10px 0;
+        }
+
+        /* Remove extra margins and padding */
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Remove card styles */
+        .card {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+
+        /* Ensure modal stays at the top */
+        .modal-dialog {
+            margin-top: 10px;
+        }
+
+        /* Ensure the modal doesn't go off screen for mobile */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 10px auto;
+            }
+        }
+
+        /* Hide everything else when printing and adjust for 48mm printing */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #receipt-container, #receipt-container * {
+                visibility: visible;
+            }
+
+            #receipt-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 48mm;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Remove header, print button, and refresh button from print view */
+            #receipt-container h5, #print-btn, #refresh-btn {
+                display: none;
+            }
+        }
+    </style>
 </head>
+
 <body>
-
- <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Select Outlet</h3>
-            <!-- Increase the size of the Select Outlet dropdown -->
-            <select class="form-control mb-3" id="outletDropdown">
-                <option value="outlet1">මිඩ්ලන්ඩ් කැෆේ </option>
-                <option value="outlet2">මිඩ්ලන්ඩ් මාර්කෙට්  </option>
-                <option value="outlet2">මිඩ්ලන්ඩ් ධේලී  </option>
-                <!-- Add more outlets as needed -->
+    <div class="container mt-3">
+        <!-- Outlet Selection -->
+        <div class="card mb-3 p-3">
+            <h5 class="card-title" id="outlet-title">Midland Bakers</h5>
+            <select class="form-select mt-3" id="outlet-select">
+                <option value="" disabled selected>Select an outlet</option>
+                <option value="outlet1">මිඩ්ලන්ඩ් බේකරි</option>
+                <option value="outlet2">මිඩ්ලන්ඩ් කැෆෙ පාන්</option>
+                <option value="outlet3">මිඩ්ලන්ඩ් කැෆෙ කේක්</option>
+                <option value="outlet4">මිඩ්ලන්ඩ් කැෆෙ</option>
+                <option value="outlet5">මිඩ්ලන්ඩ් නිව් කැෆෙ</option>
+                <option value="outlet6">මිඩ්ලන්ඩ් කැෆෙ 2</option>
+                <option value="outlet7">මිඩ්ලන්ඩ් බොගම්බර 1</option>
+                <option value="outlet8">මිඩ්ලන්ඩ් බොගම්බර 2</option>
+                <option value="outlet9">මිඩ්ලන්ඩ් ක්‍රීම් හවුස්</option>
+                <option value="outlet10">මිඩ්ලන්ඩ් ඩෙලි</option>
+                <!-- Add more options as needed -->
             </select>
+        </div>
 
-            <h3 class="mt-4">Select Items</h3>
-            <div class="row">
-                <div class="col-md-12">
-                    <!-- Single column for items, col-12 -->
-                    <button class="btn btn-primary btn-block itemBtn">පාන්</button>
-                    <button class="btn btn-primary btn-block itemBtn">T බනිස්</button>
-                    <button class="btn btn-primary btn-block itemBtn">ජෑම් බනිස්</button>
-                    <button class="btn btn-primary btn-block itemBtn">කුඩු බනිස්</button>
-                    <button class="btn btn-primary btn-block itemBtn">ක්‍රීම් බනිස්</button>
-                    <button class="btn btn-primary btn-block itemBtn">වියනා</button>
-                    <button class="btn btn-primary btn-block itemBtn">මලූ පාන්</button>
-                    <button class="btn btn-primary btn-block itemBtn">සිනි සම්බල්</button>
-                    <!-- Add more item buttons as needed -->
+        <!-- Item List -->
+        <div class="card mb-3 p-3">
+            <div id="item-list" class="row">
+                <!-- Dynamically Generated Item Buttons -->
+            </div>
+        </div>
+
+        <!-- Selected Items and Summary -->
+        <div id="selected-items-summary" class="card p-3 mb-3">
+            <h5>Selected Items</h5>
+            <div id="selected-items">
+                <!-- Selected items will appear here -->
+            </div>
+            <button id="complete-order-btn" class="btn btn-success mt-3">Complete Order</button>
+        </div>
+
+        <!-- Receipt/Print View -->
+        <div id="receipt-container" class="card p-3 mb-3 d-none">
+            <div id="receipt" class="p-3">
+                <!-- Printed receipt content -->
+            </div>
+            <button id="print-btn" class="btn btn-primary mt-3">Print / Share</button>
+            <button id="refresh-btn" class="btn btn-secondary mt-3 d-none">Refresh</button>
+        </div>
+
+        <!-- Modal for Entering Quantity -->
+        <div class="modal fade" id="quantityModal" tabindex="-1" aria-labelledby="quantityModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="quantityModalLabel">Enter Quantity</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="number" class="form-control" id="quantity-input" min="1" placeholder="Enter quantity" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="save-quantity-btn">Save</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <h3>Summary</h3>
-            <p id="outletName">Outlet: </p>
-            <ul id="summaryList" class="list-group">
-                <!-- Summary items will be added here dynamically -->
-            </ul>
-
-            <button class="btn btn-success mt-3" data-toggle="modal" data-target="#quantityModal">Print Summary</button>
-        </div>
-    </div>
-</div>
-
-
-    <!-- Quantity Modal -->
-    <div class="modal fade" id="quantityModal" tabindex="-1" role="dialog" aria-labelledby="quantityModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="quantityModalLabel">Enter Quantity</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <label for="quantityInput">Quantity:</label>
-                    <input type="number" class="form-control" id="quantityInput">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="addToSummaryBtn">Add to Summary</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- Modal for Share or Print Options -->
+        <div class="modal fade" id="sharePrintModal" tabindex="-1" aria-labelledby="sharePrintModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="sharePrintModalLabel">Share or Print</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <button id="whatsapp-share-btn" class="btn btn-success w-100 mb-3">Share on WhatsApp</button>
+                        <button id="print-copy-btn" class="btn btn-primary w-100">Print 2 Copies</button>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
-
-    <!-- Add Bootstrap and jQuery scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <!-- Add Print.js script -->
-    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
 
     <script>
+        let currentItemId = null;
+        let currentItemName = null;
+        let selectedOutlet = '';
+
         $(document).ready(function () {
-            let selectedItems = [];
+            const itemsData = [
+                { id: 'item1', name: 'ඇමරිකන් පාන්' },
+  { id: 'item2', name: 'පෙති පාන් කුඩා' },
+  { id: 'item3', name: 'පෙති පාන් ලොකු' },
+  { id: 'item4', name: 'පාන් ලොකු' },
+  { id: 'item5', name: 'රෝස් පාන්' },
+  { id: 'item6', name: 'ස්වීට් පාන්' },
+  { id: 'item7', name: 'මාබෙල් පාන්' },
+  { id: 'item8', name: 'ප්ලෙන් රෝල්' },
+  { id: 'item9', name: 'ටී බනිස්' },
+  { id: 'item10', name: 'බටර් බනිස් ජෝඩු' },
+  { id: 'item11', name: 'ක්‍රිම් බනිස් ජොඩු' },
+  { id: 'item12', name: 'ක්‍රිම් බනිස්' },
+  { id: 'item13', name: 'කුඩු බනිස්' },
+  { id: 'item14', name: 'පලතුරැ බනිස්' },
+  { id: 'item15', name: 'වියානා' },
+  { id: 'item16', name: 'සීනි සම්බල් බනිස්' },
+  { id: 'item17', name: 'ජෑම් පාන්' },
+  { id: 'item18', name: 'මාළු පාන් ලොකු' },
+  { id: 'item19', name: 'සොසේජස් බනිස්' },
+  { id: 'item20', name: 'ඔම්ලේට් බනිස්' },
+  { id: 'item21', name: 'බිත්තර බනිස්' },
+  { id: 'item22', name: 'මාළු පේස්ට්‍රී' },
+  { id: 'item23', name: 'රෝස් පැකට්' },
+  { id: 'item24', name: 'විස්කිරින්ඤඤ' },
+  { id: 'item25', name: 'චීස් පිට්සා' },
+  { id: 'item26', name: 'ස්පන්චි' },
+  { id: 'item27', name: 'ටී කේක්' },
+  { id: 'item28', name: 'චොකලට් කෝනර්' },
+  { id: 'item29', name: 'පිනට් රෝල්' },
+  { id: 'item30', name: 'අයිසිං කෑලී' },
+  { id: 'item31', name: 'වෙපස් කේක්' },
+  { id: 'item32', name: 'ජැම් රෝල්' },
+  { id: 'item33', name: 'ඩෝනට්' },
+  { id: 'item34', name: 'අඩ' },
+  { id: 'item35', name: 'නො. 1 කේක්' },
+  { id: 'item36', name: 'කප් කේක්' },
+  { id: 'item37', name: 'භාග කේක්' },
+  { id: 'item38', name: 'ඉදි කේක්' },
+  { id: 'item39', name: 'බටර් කේක්' },
+  { id: 'item40', name: 'රිබන් කේක්' },
+  { id: 'item41', name: 'චොකලට් කේක්' },
+  { id: 'item42', name: 'සුල්තානා කේක්' },
+  { id: 'item43', name: 'ඉදි කේක්' },
+  { id: 'item44', name: 'චොකලට් රෝල් කුඩා' },
+  { id: 'item45', name: 'චොකලට් රෝල් ලොකු' },
+  { id: 'item46', name: 'බටර් විස්කෝතු' },
+  { id: 'item47', name: 'බේබි රස්ක්' },
+  { id: 'item48', name: 'පිටි' },
+  { id: 'item49', name: 'සීනි' },
+  { id: 'item50', name: 'බිත්තර' },
+  { id: 'item51', name: '850 කේක්' },
+  { id: 'item52', name: '1000 කේක්' },
+  { id: 'item53', name: '1600 කේක්' },
+  { id: 'item54', name: '1kg අයිසින්' },
+  { id: 'item55', name: '1 1/2kg අයිසින්' },
+  { id: 'item56', name: '2 kg අයිසින්' },
+  { id: 'item57', name: '160 අයිසින් කෑලි' },
+  { id: 'item58', name: 'වෙනත්' },
+  { id: 'item59', name: 'අමතර' },
+                // Add more items as needed
+            ];
 
-            // Handle item button click
-            $('.itemBtn').click(function () {
-                let itemName = $(this).text();
-                $('#quantityModal').data('item-name', itemName).modal('show');
-            });
-
-            // Handle add to summary button click
-            $('#addToSummaryBtn').click(function () {
-                let itemName = $('#quantityModal').data('item-name');
-                let quantity = $('#quantityInput').val();
-                let outletName = $('#outletDropdown option:selected').text();
-
-                if (quantity > 0) {
-                    addToSummary(itemName, quantity, outletName);
-                    $('#quantityModal').modal('hide');
-                } else {
-                    alert('Please enter a valid quantity.');
-                }
-            });
-
-            // Handle print summary button click
-            $('.btn-success').click(function () {
-                printSummary();
-            });
-
-            // Function to add item to summary
-            function addToSummary(itemName, quantity, outletName) {
-                let summaryList = $('#summaryList');
-                let listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
-                listItem.text(` ${itemName} - ${quantity} කැලී `);
-                listItem.append('<button class="btn btn-danger btn-sm ml-2 removeBtn">Remove</button>');
-                summaryList.append(listItem);
-
-                // Store selected items for removal
-                selectedItems.push(itemName);
-
-                // Handle remove button click
-                listItem.find('.removeBtn').click(function () {
-                    listItem.remove();
-                    // Remove item from selectedItems array
-                    selectedItems = selectedItems.filter(item => item !== itemName);
+            // Show item buttons
+            function populateItems() {
+                const itemList = $('#item-list');
+                itemsData.forEach(item => {
+                    itemList.append(`
+                        <div class="col-6 col-md-3 mb-2">
+                            <button class="btn btn-primary w-100 item-btn" data-id="${item.id}" data-name="${item.name}">
+                                ${item.name}
+                            </button>
+                        </div>
+                    `);
                 });
             }
 
-            // Function to print the summary
-     function printSummary() {
-    // Create a clean version of the summary without the remove buttons
-    let cleanSummaryList = $('#summaryList').clone();
-    cleanSummaryList.find('.removeBtn').remove();
+            populateItems();
 
-    let outletName = $('#outletDropdown option:selected').text();
-    let userName = $('#userDropdown option:selected').text();
-    let enteredUsername = $('#username').val();
+            let selectedItems = [];
 
-    let printContents = cleanSummaryList.html();
-    let printWindow = window.open('', '_blank');
-    printWindow.document.open();
-    printWindow.document.write(`
-        <html>
-            <head>
-                <title>Summary</title>
-                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-                <style>
-                    body {
-                        font-size: 16px; /* Adjust the font size as needed */
-                        line-height: 1.6;
-                        margin: 20px;
-                    }
-                    h3 {
-                        margin-top: 20px;
-                    }
-                    p {
-                        margin-bottom: 10px;
-                    }
-                    .list-group {
-                        margin-bottom: 20px;
-                    }
-                    hr {
-                        margin-top: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <h3>${outletName}</h3>
-               
-                <p>User: ${userName}</p>
-                <p>Username: ${enteredUsername}</p>
-                <hr>
-                <ul class="list-group">${printContents}</ul>
-            </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-}
+            // Handle item button click
+            $(document).on('click', '.item-btn', function () {
+                currentItemId = $(this).data('id');
+                currentItemName = $(this).data('name');
+                $('#quantityModalLabel').text(`Enter Quantity for ${currentItemName}`);
+                $('#quantity-input').val(''); // Clear the input
+                $('#quantityModal').modal('show');
+            });
 
+            // Handle save quantity in modal
+            $('#save-quantity-btn').click(function () {
+                const quantity = parseInt($('#quantity-input').val());
 
+                if (quantity && quantity > 0) {
+                    const existingItem = selectedItems.find(item => item.id === currentItemId);
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        selectedItems.push({ id: currentItemId, name: currentItemName, quantity });
+                    }
+                    updateSelectedItems();
+                    $('#quantityModal').modal('hide'); // Close modal
+                } else {
+                    alert('Please enter a valid quantity');
+                }
+            });
+
+            // Update selected items list
+            function updateSelectedItems() {
+                const selectedItemsDiv = $('#selected-items');
+                selectedItemsDiv.empty();
+
+                selectedItems.forEach((item, index) => {
+                    selectedItemsDiv.append(`
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${item.name}</span>
+                            <span>Quantity: ${item.quantity}</span>
+                        </div>
+                    `);
+                });
+            }
+
+            // Handle outlet selection
+            $('#outlet-select').change(function () {
+                selectedOutlet = $('#outlet-select option:selected').text();
+                $('#outlet-title').text(`Midland Bakers - ${selectedOutlet}`);
+            });
+
+            // Handle complete order
+            $('#complete-order-btn').click(function () {
+                if (selectedItems.length === 0) {
+                    alert('No items selected.');
+                    return;
+                }
+
+                const receiptContainer = $('#receipt');
+                receiptContainer.empty();
+
+                receiptContainer.append(`<p class="text-center"><strong>${selectedOutlet}</strong></p>`);
+
+                selectedItems.forEach(item => {
+                    receiptContainer.append(`
+                        <div class="receipt-item">
+                            <span>${item.name}</span>
+                            <span>${item.quantity}</span>
+                        </div>
+                    `);
+                });
+
+                // Add date at the bottom of the receipt
+                receiptContainer.append(`<p class="text-center mt-3" style="font-size: 10px;">Date: ${new Date().toLocaleString()}</p>`);
+
+                // Show receipt container and print/refresh buttons
+                $('#receipt-container').removeClass('d-none');
+                $('#refresh-btn').removeClass('d-none');
+            });
+
+            // Handle print/share button click
+            $('#print-btn').click(function () {
+                $('#sharePrintModal').modal('show'); // Show the modal with print/share options
+            });
+
+            // Handle WhatsApp share
+            $('#whatsapp-share-btn').click(function () {
+                html2canvas(document.querySelector('#receipt')).then(function (canvas) {
+                    const imageData = canvas.toDataURL('image/png');
+                    const outletName = selectedOutlet || "Midland Bakers";
+                    const date = new Date().toLocaleString();
+
+                    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(outletName + " - Bill\nDate: " + date)}`;
+
+                    canvas.toBlob(function(blob) {
+                        const file = new File([blob], 'bill.png', { type: 'image/png' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+
+                        const shareData = {
+                            title: 'Bill',
+                            text: outletName + " - Bill\nDate: " + date,
+                            files: [file]
+                        };
+
+                        if (navigator.canShare && navigator.canShare(shareData)) {
+                            navigator.share(shareData);
+                        } else {
+                            window.open(whatsappUrl, '_blank'); // Fallback to sending text
+                        }
+                    });
+                    $('#sharePrintModal').modal('hide');
+                });
+            });
+
+            // Handle print 2 copies
+            $('#print-copy-btn').click(function () {
+                const receiptContainer = $('#receipt');
+                const originalReceipt = receiptContainer.html(); // Save the original receipt content
+
+                // Create a duplicate copy of the receipt
+                const duplicateReceipt = `<div class="separator"></div>${originalReceipt}`;
+                
+                // Append the duplicate copy to the receipt container
+                receiptContainer.append(duplicateReceipt);
+
+                // Trigger the print dialog
+                window.print();
+
+                // Restore the original receipt content after printing
+                receiptContainer.html(originalReceipt);
+
+                $('#sharePrintModal').modal('hide');
+            });
+
+            // Refresh button functionality
+            $('#refresh-btn').click(function () {
+                location.reload(); // Reload the page
+            });
+
+            // Handle modal and keyboard overlap on mobile
+            $('#quantityModal').on('shown.bs.modal', function () {
+                var $input = $('#quantity-input');
+                if ($(window).width() <= 768) { // Only adjust for mobile
+                    $('html, body').animate({ scrollTop: $input.offset().top - 100 }, 300); // Scroll to the input field
+                }
+            });
         });
     </script>
-
 </body>
+
 </html>
