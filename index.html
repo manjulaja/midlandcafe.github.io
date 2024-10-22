@@ -9,16 +9,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <style>
-        /* Style to make the receipt fit 48mm with minimal white space */
         #receipt {
             width: 48mm;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 14px; /* Increase font size */
-            font-weight: bold; /* Make text bold */
+            font-size: 14px;
+            font-weight: bold;
             margin: 0;
             padding: 0;
-            text-align: center; /* Center align text */
+            text-align: center;
         }
 
         .receipt-item {
@@ -26,8 +30,8 @@
             grid-template-columns: 1fr auto;
             gap: 5px;
             width: 100%;
-            font-weight: bold; /* Ensure each item in the receipt is bold */
-            border-bottom: 1px dotted #000; /* Add a small dotted line between items */
+            font-weight: bold;
+            border-bottom: 1px dotted #000;
             padding-bottom: 5px;
             margin-bottom: 5px;
         }
@@ -37,36 +41,31 @@
         }
 
         .separator {
-            border-bottom: 2px solid black;
+            border-bottom: 2px dotted black;
             margin: 10px 0;
         }
 
-        /* Remove extra margins and padding */
         body, html {
             margin: 0;
             padding: 0;
         }
 
-        /* Remove card styles */
         .card {
             border: none;
             box-shadow: none;
             padding: 0;
         }
 
-        /* Ensure modal stays at the top */
         .modal-dialog {
             margin-top: 10px;
         }
 
-        /* Ensure the modal doesn't go off screen for mobile */
         @media (max-width: 768px) {
             .modal-dialog {
                 margin: 10px auto;
             }
         }
 
-        /* Hide everything else when printing and adjust for 48mm printing */
         @media print {
             body * {
                 visibility: hidden;
@@ -85,7 +84,6 @@
                 margin: 0;
             }
 
-            /* Remove header, print button, and refresh button from print view */
             #receipt-container h5, #print-btn, #refresh-btn {
                 display: none;
             }
@@ -99,7 +97,7 @@
         <div class="card mb-3 p-3">
             <h5 class="card-title" id="outlet-title">Midland Bakers</h5>
             <select class="form-select mt-3" id="outlet-select">
-                <option value="" disabled selected>Select an outlet</option>
+               <option value="" disabled selected>Select an outlet</option>
                 <option value="outlet1">මිඩ්ලන්ඩ් බේකරි</option>
                 <option value="outlet2">මිඩ්ලන්ඩ් කැෆෙ පාන්</option>
                 <option value="outlet3">මිඩ්ලන්ඩ් කැෆෙ කේක්</option>
@@ -132,9 +130,7 @@
 
         <!-- Receipt/Print View -->
         <div id="receipt-container" class="card p-3 mb-3 d-none">
-            <div id="receipt" class="p-3">
-                <!-- Printed receipt content -->
-            </div>
+            <div id="receipt" class="p-3"></div>
             <button id="print-btn" class="btn btn-primary mt-3">Print / Share</button>
             <button id="refresh-btn" class="btn btn-secondary mt-3 d-none">Refresh</button>
         </div>
@@ -177,13 +173,28 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7f1Pwjd_pKa7cYpebHzfW2ob8OsIVbhA",
+            authDomain: "midlandbakers-dcd8c.firebaseapp.com",
+            projectId: "midlandbakers-dcd8c",
+            storageBucket: "midlandbakers-dcd8c.appspot.com",
+            messagingSenderId: "1014534068300",
+            appId: "1:1014534068300:web:45b3bb181880a71b813ce9",
+            measurementId: "G-FD5BZKSDJF"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let currentItemId = null;
         let currentItemName = null;
         let selectedOutlet = '';
 
         $(document).ready(function () {
             const itemsData = [
-                { id: 'item1', name: 'ඇමරිකන් පාන්' },
+              { id: 'item1', name: 'ඇමරිකන් පාන්' },
   { id: 'item2', name: 'පෙති පාන් කුඩා' },
   { id: 'item3', name: 'පෙති පාන් ලොකු' },
   { id: 'item4', name: 'පාන් ලොකු' },
@@ -245,7 +256,6 @@
                 // Add more items as needed
             ];
 
-            // Show item buttons
             function populateItems() {
                 const itemList = $('#item-list');
                 itemsData.forEach(item => {
@@ -263,16 +273,14 @@
 
             let selectedItems = [];
 
-            // Handle item button click
             $(document).on('click', '.item-btn', function () {
                 currentItemId = $(this).data('id');
                 currentItemName = $(this).data('name');
                 $('#quantityModalLabel').text(`Enter Quantity for ${currentItemName}`);
-                $('#quantity-input').val(''); // Clear the input
+                $('#quantity-input').val('');
                 $('#quantityModal').modal('show');
             });
 
-            // Handle save quantity in modal
             $('#save-quantity-btn').click(function () {
                 const quantity = parseInt($('#quantity-input').val());
 
@@ -284,18 +292,17 @@
                         selectedItems.push({ id: currentItemId, name: currentItemName, quantity });
                     }
                     updateSelectedItems();
-                    $('#quantityModal').modal('hide'); // Close modal
+                    $('#quantityModal').modal('hide');
                 } else {
                     alert('Please enter a valid quantity');
                 }
             });
 
-            // Update selected items list
             function updateSelectedItems() {
                 const selectedItemsDiv = $('#selected-items');
                 selectedItemsDiv.empty();
 
-                selectedItems.forEach((item, index) => {
+                selectedItems.forEach((item) => {
                     selectedItemsDiv.append(`
                         <div class="d-flex justify-content-between mb-2">
                             <span>${item.name}</span>
@@ -305,13 +312,11 @@
                 });
             }
 
-            // Handle outlet selection
             $('#outlet-select').change(function () {
                 selectedOutlet = $('#outlet-select option:selected').text();
                 $('#outlet-title').text(`Midland Bakers - ${selectedOutlet}`);
             });
 
-            // Handle complete order
             $('#complete-order-btn').click(function () {
                 if (selectedItems.length === 0) {
                     alert('No items selected.');
@@ -320,6 +325,22 @@
 
                 const receiptContainer = $('#receipt');
                 receiptContainer.empty();
+
+                const orderData = {
+                    outlet: selectedOutlet,
+                    items: selectedItems,
+                    date: new Date().toLocaleString()
+                };
+
+                // Save order data to Firebase
+                const newOrderKey = firebase.database().ref().child('orders').push().key;
+                firebase.database().ref('orders/' + newOrderKey).set(orderData)
+                    .then(() => {
+                        console.log('Order saved successfully!');
+                    })
+                    .catch(error => {
+                        console.error('Error saving order: ', error);
+                    });
 
                 receiptContainer.append(`<p class="text-center"><strong>${selectedOutlet}</strong></p>`);
 
@@ -332,10 +353,8 @@
                     `);
                 });
 
-                // Add date at the bottom of the receipt
                 receiptContainer.append(`<p class="text-center mt-3" style="font-size: 10px;">Date: ${new Date().toLocaleString()}</p>`);
 
-                // Show receipt container and print/refresh buttons
                 $('#receipt-container').removeClass('d-none');
                 $('#refresh-btn').removeClass('d-none');
             });
@@ -354,7 +373,7 @@
 
                     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(outletName + " - Bill\nDate: " + date)}`;
 
-                    canvas.toBlob(function(blob) {
+                    canvas.toBlob(function (blob) {
                         const file = new File([blob], 'bill.png', { type: 'image/png' });
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(file);
@@ -380,7 +399,7 @@
                 const receiptContainer = $('#receipt');
                 const originalReceipt = receiptContainer.html(); // Save the original receipt content
 
-                // Create a duplicate copy of the receipt
+                // Create a duplicate copy of the receipt with a separator
                 const duplicateReceipt = `<div class="separator"></div>${originalReceipt}`;
                 
                 // Append the duplicate copy to the receipt container
@@ -395,17 +414,8 @@
                 $('#sharePrintModal').modal('hide');
             });
 
-            // Refresh button functionality
             $('#refresh-btn').click(function () {
-                location.reload(); // Reload the page
-            });
-
-            // Handle modal and keyboard overlap on mobile
-            $('#quantityModal').on('shown.bs.modal', function () {
-                var $input = $('#quantity-input');
-                if ($(window).width() <= 768) { // Only adjust for mobile
-                    $('html, body').animate({ scrollTop: $input.offset().top - 100 }, 300); // Scroll to the input field
-                }
+                location.reload();
             });
         });
     </script>
